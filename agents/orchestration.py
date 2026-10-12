@@ -8,62 +8,71 @@ from agents.itinerary import itinerary_agent
 
 def create_travel_plan(
     client,
+    origin,
     destination,
+    preferred_transport,
     days,
     travelers,
     budget,
     pace,
     interests,
     travel_style,
-    additional_notes
+    additional_notes,
 ):
-    """Coordinate the agents to generate a complete travel plan."""
+    """
+    Coordinate the travel-planning agents.
 
-    # Run Destination and Budget agents concurrently.
+    Destination and budget recommendations run concurrently.
+    The itinerary agent then uses both results to create
+    a practical day-by-day plan.
+    """
+
     with ThreadPoolExecutor(max_workers=2) as executor:
 
         destination_future = executor.submit(
             destination_agent,
-            client=client,
-            destination=destination,
-            interests=interests,
-            pace=pace,
-            additional_notes=additional_notes
+            client,
+            destination,
+            interests,
+            pace,
+            additional_notes,
         )
 
         budget_future = executor.submit(
             budget_agent,
-            client=client,
-            destination=destination,
-            days=days,
-            travelers=travelers,
-            budget=budget,
-            travel_style=travel_style,
-            interests=interests,
-            additional_notes=additional_notes
+            client,
+            origin,
+            destination,
+            days,
+            travelers,
+            budget,
+            preferred_transport,
+            travel_style,
+            interests,
+            additional_notes,
         )
 
-        # Wait for both agents to finish and retrieve their results.
-        destination_result = destination_future.result()
-        budget_result = budget_future.result()
+        destination_recommendations = destination_future.result()
+        budget_assessment = budget_future.result()
 
-    # Generate the itinerary using both agents' results.
-    itinerary_result = itinerary_agent(
-        client=client,
-        destination=destination,
-        days=days,
-        travelers=travelers,
-        budget=budget,
-        pace=pace,
-        interests=interests,
-        travel_style=travel_style,
-        additional_notes=additional_notes,
-        destination_recommendations=destination_result,
-        budget_assessment=budget_result
+    itinerary = itinerary_agent(
+        client,
+        origin,
+        destination,
+        days,
+        travelers,
+        budget,
+        preferred_transport,
+        pace,
+        interests,
+        travel_style,
+        additional_notes,
+        destination_recommendations,
+        budget_assessment,
     )
 
     return {
-        "destination_recommendations": destination_result,
-        "budget_assessment": budget_result,
-        "itinerary": itinerary_result
+        "destination_recommendations": destination_recommendations,
+        "budget_assessment": budget_assessment,
+        "itinerary": itinerary,
     }
