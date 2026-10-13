@@ -14,7 +14,10 @@ optional preferences.
 
 ## 📸 Application Preview
 
-![TripWeaver AI application interface](assets/Travel_planner.png)
+<p align="center">
+  <img src="assets/Travel_planner_1.png" alt="TripWeaver AI interface 1" width="48%">
+  <img src="assets/Travel_planner_2.png" alt="TripWeaver AI interface 2" width="48%">
+</p>
 
 > Add your screenshot to the repository at
 > `assets/tripweaver-preview.png`. If you use a different filename or
